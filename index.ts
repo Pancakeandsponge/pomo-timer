@@ -2,6 +2,7 @@ const timer: HTMLElement = document.getElementById('timer')!;
 const start: HTMLButtonElement = document.getElementById('start') as HTMLButtonElement;
 const pause: HTMLButtonElement = document.getElementById('pause') as HTMLButtonElement;
 const restart: HTMLButtonElement = document.getElementById('restart') as HTMLButtonElement;
+const alarm: HTMLAudioElement = new Audio('./src/audio/level-up-2-199574.mp3');
 
 let isWorkSesision: boolean = true;
 let workTimer: number = 25 *  60
@@ -11,34 +12,19 @@ let longBreakTimer: number = 10 * 60
 
 let interval: any;
 
-// Display function for work session
-const newTime = () => {
-  const minutes: number = Math.floor(workTimer / 60);
-  const seconds: number = workTimer % 60;
-  timer.innerHTML = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
+// Display function for sessions 
+const displayNeWTimer = (time : number) => {
+  const minutes : number = Math.floor(time / 60)
+  const  seconds : number = time % 60
+  timer.innerText = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`
+}
 
-// Display function for break session
-const newBreakTime = () => {
-  const minutes = Math.floor(shortBreakTimer / 60);
-  const seconds = shortBreakTimer % 60;
-  timer.innerHTML = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
-
-const newLongBreakTime = () => {
-  const minutes = Math.floor(longBreakTimer / 60);
-  const seconds = longBreakTimer% 60;
-  timer.innerHTML = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
-
-const alarm: HTMLAudioElement = new Audio('./src/audio/level-up-2-199574.mp3');
-
-// Switch to break session
-const switchToBreak = () => {
+// Switch to short break session
+const switchToShortBreak = () => {
   clearInterval(interval);
   isWorkSesision = false;
   shortBreakTimer = 5 * 60 
-  newBreakTime();
+  displayNeWTimer(shortBreakTimer);
   start.disabled  = false;
 };
 
@@ -47,7 +33,7 @@ const switchToWork = () => {
   clearInterval(interval);
   isWorkSesision = true;
   workTimer = 25 * 60
-  newTime();
+  displayNeWTimer(workTimer);
   start.disabled = false;
 };
 
@@ -56,7 +42,7 @@ const switchToLongBreak = () => {
   clearInterval(interval);
   isWorkSesision = false;
   longBreakTimer = 10 * 60
-  newLongBreakTime();
+  displayNeWTimer(longBreakTimer);
   start.disabled = false;
 };
 
@@ -69,7 +55,8 @@ const startCountDown = () => {
     // For work session
     if (isWorkSesision) {
       workTimer--;
-      newTime();
+      start.disabled = true
+      displayNeWTimer(workTimer);
       if (workTimer === 0) {
         clearInterval(interval);
         alarm.play();
@@ -77,14 +64,15 @@ const startCountDown = () => {
         if (workSessionCounter % 2 === 0) {
           switchToLongBreak();
         } else {
-          switchToBreak();
+          switchToShortBreak();
           changeFirstStyle();
         }
       }
     } else {
       if(workSessionCounter % 2 === 0){
         longBreakTimer--
-        newLongBreakTime()
+        start.disabled = true
+        displayNeWTimer(longBreakTimer)
         if(longBreakTimer === 0){
           clearInterval(interval)
           alarm.play()
@@ -92,7 +80,8 @@ const startCountDown = () => {
         }
       }else {
         shortBreakTimer--;
-      newBreakTime();
+        start.disabled = true
+      displayNeWTimer(shortBreakTimer);
       if (shortBreakTimer === 0) {
         clearInterval(interval);
         alarm.play();
@@ -118,17 +107,17 @@ const restartCountDown = () => {
   clearInterval(interval);
   if (isWorkSesision) {
     workTimer = 25 * 60;
-    newTime();
+    displayNeWTimer(workTimer);
   } else if (longBreakTimer === 10 * 60) {
     longBreakTimer = 10 * 60;
-    newLongBreakTime();
+    displayNeWTimer(longBreakTimer);
   } else {
     shortBreakTimer = 5 * 60;
-    newBreakTime();
+    displayNeWTimer(shortBreakTimer);
   }
   startCountDown();
   start.disabled = false; // Enable start button to begin countdown again
-  pause.disabled = true; // Disable pause button
+  pause.disabled = false; // Disable pause button
   restart.disabled = false; // Enable restart button
 };
 
