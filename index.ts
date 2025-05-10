@@ -4,8 +4,8 @@ const pause: HTMLButtonElement = document.getElementById('pause') as HTMLButtonE
 const restart: HTMLButtonElement = document.getElementById('restart') as HTMLButtonElement;
 const alarm: HTMLAudioElement = new Audio('./src/audio/level-up-2-199574.mp3');
 
-let isWorkSesision: boolean = true;
-let workTimer: number = 25 *  60
+let isWorkSession: boolean = true;
+let workTimer: number = 25 * 60
 let shortBreakTimer: number = 5 * 60
 let workSessionCounter: number = 0;
 let longBreakTimer: number = 10 * 60
@@ -13,7 +13,7 @@ let longBreakTimer: number = 10 * 60
 let interval: any;
 
 // Display function for sessions 
-const displayNeWTimer = (time : number) => {
+const displayNewTimer = (time : number) => {
   const minutes : number = Math.floor(time / 60)
   const  seconds : number = time % 60
   timer.innerText = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`
@@ -22,27 +22,27 @@ const displayNeWTimer = (time : number) => {
 // Switch to short break session
 const switchToShortBreak = () => {
   clearInterval(interval);
-  isWorkSesision = false;
-  shortBreakTimer = 5 * 60 
-  displayNeWTimer(shortBreakTimer);
+  isWorkSession = false;
+  shortBreakTimer = 5 * 60
+  displayNewTimer(shortBreakTimer);
   start.disabled  = false;
 };
 
 // Switch to work session
 const switchToWork = () => {
   clearInterval(interval);
-  isWorkSesision = true;
+  isWorkSession = true;
   workTimer = 25 * 60
-  displayNeWTimer(workTimer);
+  displayNewTimer(workTimer);
   start.disabled = false;
 };
 
 // Switch to long break session
 const switchToLongBreak = () => {
   clearInterval(interval);
-  isWorkSesision = false;
+  isWorkSession = false;
   longBreakTimer = 10 * 60
-  displayNeWTimer(longBreakTimer);
+  displayNewTimer(longBreakTimer);
   start.disabled = false;
 };
 
@@ -53,40 +53,42 @@ const startCountDown = () => {
   restart.disabled = false; 
   interval = setInterval(() => {
     // For work session
-    if (isWorkSesision) {
+    if (isWorkSession) {
       workTimer--;
       start.disabled = true
-      displayNeWTimer(workTimer);
+      displayNewTimer(workTimer);
       if (workTimer === 0) {
         clearInterval(interval);
         alarm.play();
         workSessionCounter++;
         if (workSessionCounter % 2 === 0) {
           switchToLongBreak();
+          longBreakStyle()
         } else {
           switchToShortBreak();
-          changeFirstStyle();
+          shortBreakStyle();
         }
       }
     } else {
       if(workSessionCounter % 2 === 0){
         longBreakTimer--
         start.disabled = true
-        displayNeWTimer(longBreakTimer)
+        displayNewTimer(longBreakTimer)
         if(longBreakTimer === 0){
           clearInterval(interval)
           alarm.play()
           switchToWork()
+          workTimerStyle()
         }
       }else {
         shortBreakTimer--;
         start.disabled = true
-      displayNeWTimer(shortBreakTimer);
+      displayNewTimer(shortBreakTimer);
       if (shortBreakTimer === 0) {
         clearInterval(interval);
         alarm.play();
         switchToWork();
-        changeSecondStyle();
+        workTimerStyle();
       }
       }
     }
@@ -105,15 +107,15 @@ const pauseCountDown = () => {
 // Restart countdown
 const restartCountDown = () => {
   clearInterval(interval);
-  if (isWorkSesision) {
-    workTimer = 25 * 60;
-    displayNeWTimer(workTimer);
+  if (isWorkSession) {
+    workTimer = 25 * 60
+    displayNewTimer(workTimer);
   } else if (longBreakTimer === 10 * 60) {
-    longBreakTimer = 10 * 60;
-    displayNeWTimer(longBreakTimer);
+    longBreakTimer = 10 * 60
+    displayNewTimer(longBreakTimer);
   } else {
-    shortBreakTimer = 5 * 60;
-    displayNeWTimer(shortBreakTimer);
+    shortBreakTimer = 5 * 60
+    displayNewTimer(shortBreakTimer);
   }
   startCountDown();
   start.disabled = false; // Enable start button to begin countdown again
@@ -127,29 +129,45 @@ pause.addEventListener('click', pauseCountDown);
 restart.addEventListener('click', restartCountDown);
 
 // Switching between styles when the session changes
-const shortBreakTitle: HTMLElement = document.getElementById('shortBreakTitle')!;
 const pomoTimerTitle: HTMLElement = document.getElementById('pomoTimerTitle')!;
-const containor: HTMLElement = document.getElementById('containor')!;
-const buttonContainor: HTMLElement = document.getElementById('buttonContainor')!;
+const container: HTMLElement = document.getElementById('container')!;
+const buttonContainer: HTMLElement = document.getElementById('buttonContainer')!;
 
-const changeFirstStyle = () => {
-  shortBreakTitle.classList.remove('hidden');
-  pomoTimerTitle.classList.add('hidden');
-  containor.classList.remove('!bg-blue-600');
-  containor.classList.add('bg-purple-600');
+const shortBreakStyle = () => {
+  pomoTimerTitle.innerText = 'Short Break'
+  container.classList.remove('!bg-blue-600');
+  container.classList.add('bg-purple-600');
   timer.classList.remove('bg-blue-600', 'border-blue-600');
   timer.classList.add('bg-purple-600', 'border-purple-600');
-  buttonContainor.classList.remove('bg-blue-600', 'border-blue-600');
-  buttonContainor.classList.add('bg-purple-600', 'border-purple-600');
+  buttonContainer.classList.remove('bg-blue-600', 'border-blue-600');
+  buttonContainer.classList.add('bg-purple-600', 'border-purple-600');
 };
 
-const changeSecondStyle = () => {
-  shortBreakTitle.classList.add('hidden');
-  pomoTimerTitle.classList.remove('hidden');
-  containor.classList.remove('bg-purple-600');
-  containor.classList.add('bg-blue-600');
+const workTimerStyle = () => {
+  pomoTimerTitle.innerText = 'Pomo Timer'
+
+  if(workSessionCounter % 2 == 0){
+  container.classList.remove('bg-green-600');
+  container.classList.add('bg-blue-600');
+  timer.classList.remove('bg-green-600', 'border-green-600');
+  timer.classList.add('bg-blue-600', 'border-blue-600');
+  buttonContainer.classList.remove('bg-green-600', 'border-green-600');
+  buttonContainer.classList.add('bg-blue-600', 'border-blue-600');
+  }else{
+  container.classList.remove('bg-purple-600');
+  container.classList.add('bg-blue-600');
   timer.classList.remove('bg-purple-600', 'border-purple-600');
   timer.classList.add('bg-blue-600', 'border-blue-600');
-  buttonContainor.classList.remove('bg-purple-600', 'border-purple-600');
-  buttonContainor.classList.add('bg-blue-600', 'border-blue-600');
+  buttonContainer.classList.remove('bg-purple-600', 'border-purple-600');
+  buttonContainer.classList.add('bg-blue-600', 'border-blue-600');
+  }
 };
+const longBreakStyle = () => {
+  pomoTimerTitle.innerText = 'Long Break'
+  container.classList.remove('bg-blue-600')
+  container.classList.add('bg-green-600')
+  timer.classList.remove('bg-blue-600', 'border-blue-600');
+  timer.classList.add('bg-green-600', 'border-green-600');
+  buttonContainer.classList.remove('bg-blue-600', 'border-blue-600');
+  buttonContainer.classList.add('bg-green-600', 'border-green-600');
+}
